@@ -9,7 +9,7 @@ import { read } from "fs"
 
 let clients = []
 
-const PORT = 3000
+const PORT = procces.env.PORT
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
