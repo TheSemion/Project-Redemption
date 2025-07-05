@@ -1,4 +1,4 @@
-const socket = new WebSocket("wss://project-name.up.railway.app")
+const socket = new WebSocket("https://project-redemption-production.up.railway.app/")
 
 window.addEventListener("DOMContentLoaded", () => {
     const clientNumber = localStorage.getItem("currentClient")
