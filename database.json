@@ -1,0 +1,248 @@
+{
+  "users": [
+    {
+      "name": "Остап Семйоник",
+      "phoneNumber": "380508105676",
+      "password": "1234",
+      "contacts": [
+        {
+          "username": "Макс лох жирний ",
+          "phoneNumber": "38050810567"
+        },
+        {
+          "username": "asdas ",
+          "phoneNumber": "38050810567"
+        }
+      ],
+      "chatsIn": []
+    },
+    {
+      "name": "Максим Семйоник",
+      "phoneNumber": "38050810567",
+      "password": "1234",
+      "contacts": [
+        {
+          "username": "Остап Семйоник",
+          "phoneNumber": "380508105676"
+        },
+        {
+          "username": "Остап Семйоник",
+          "phoneNumber": "380508105676"
+        }
+      ],
+      "chatsIn": []
+    },
+    {
+      "name": "Остап",
+      "phoneNumber": "12345",
+      "password": "1234",
+      "contacts": [
+        {
+          "username": "Максим Лох",
+          "phoneNumber": "123456"
+        }
+      ],
+      "chatsIn": []
+    },
+    {
+      "name": "Максим Семйоник",
+      "phoneNumber": "123456",
+      "password": "1234",
+      "contacts": [
+        {
+          "username": "Остап",
+          "phoneNumber": "12345"
+        }
+      ],
+      "chatsIn": []
+    },
+    {
+      "name": "Остап Семйоник",
+      "phoneNumber": "12345678",
+      "password": "1234",
+      "contacts": [
+        {
+          "username": "Максим Лох",
+          "phoneNumber": "123456789"
+        },
+        {
+          "username": "підар ",
+          "phoneNumber": "123123"
+        }
+      ],
+      "chatsIn": []
+    },
+    {
+      "name": "Максим Семйоник",
+      "phoneNumber": "123456789",
+      "password": "1234",
+      "contacts": [
+        {
+          "username": "Остап Семйоник",
+          "phoneNumber": "12345678"
+        }
+      ],
+      "chatsIn": []
+    },
+    {
+      "name": "Максим Семйоник",
+      "phoneNumber": "123123",
+      "password": "123",
+      "contacts": [
+        {
+          "username": "Остап Семйоник",
+          "phoneNumber": "12345678"
+        }
+      ],
+      "chatsIn": []
+    },
+    {
+      "name": "Остап Семйоник",
+      "phoneNumber": "123321",
+      "password": "1234",
+      "contacts": [
+        {
+          "username": "Максим лохї Семйоник",
+          "phoneNumber": "123123123"
+        }
+      ],
+      "chatsIn": []
+    },
+    {
+      "name": "Максим Семйоник",
+      "phoneNumber": "123123123",
+      "password": "1234",
+      "contacts": [
+        {
+          "username": "Остап Семйоник",
+          "phoneNumber": "123321"
+        }
+      ],
+      "chatsIn": []
+    }
+  ],
+  "chats": [
+    {
+      "users": [
+        "38050810567",
+        "380508105676"
+      ],
+      "chatId": "38050810567-380508105676",
+      "messages": [
+        {
+          "message": "Привіт піська",
+          "sendMessageTo": "38050810567",
+          "sendBy": "380508105676",
+          "time": "13:24"
+        },
+        {
+          "message": "Салам гей",
+          "sendMessageTo": "380508105676",
+          "sendBy": "38050810567",
+          "time": "13:24"
+        },
+        {
+          "message": "Ну привіт тіпа",
+          "sendMessageTo": "38050810567",
+          "sendBy": "380508105676",
+          "time": "13:34"
+        },
+        {
+          "message": "пфів",
+          "sendMessageTo": "380508105676",
+          "sendBy": "38050810567",
+          "time": "13:34"
+        },
+        {
+          "message": "Привіт",
+          "sendMessageTo": "38050810567",
+          "sendBy": "380508105676",
+          "time": "13:47"
+        },
+        {
+          "message": "І що\n",
+          "sendMessageTo": "380508105676",
+          "sendBy": "38050810567",
+          "time": "13:51"
+        },
+        {
+          "message": "Ти гей?\n",
+          "sendMessageTo": "380508105676",
+          "sendBy": "38050810567",
+          "time": "13:51"
+        },
+        {
+          "message": "Ні, не гей",
+          "sendMessageTo": "380508105676",
+          "sendBy": "38050810567",
+          "time": "13:52"
+        },
+        {
+          "message": "Чи може все ж таки гей?\n",
+          "sendMessageTo": "38050810567",
+          "sendBy": "380508105676",
+          "time": "13:52"
+        }
+      ]
+    },
+    {
+      "users": [
+        "38050810567",
+        "380508105676"
+      ],
+      "chatId": "38050810567-380508105676",
+      "messages": []
+    },
+    {
+      "users": [
+        "123456",
+        "12345"
+      ],
+      "chatId": "12345-123456",
+      "messages": []
+    },
+    {
+      "users": [
+        "123456789",
+        "12345678"
+      ],
+      "chatId": "12345678-123456789",
+      "messages": []
+    },
+    {
+      "users": [
+        "123123",
+        "12345678"
+      ],
+      "chatId": "123123-12345678",
+      "messages": []
+    },
+    {
+      "users": [
+        "123123123",
+        "123321"
+      ],
+      "chatId": "123123123-123321",
+      "messages": [
+        {
+          "message": "Привіт",
+          "sendMessageTo": "123123123",
+          "sendBy": "123321",
+          "time": "14:09"
+        },
+        {
+          "message": "Сукабляьтб",
+          "sendMessageTo": "123321",
+          "sendBy": "123123123",
+          "time": "14:09"
+        },
+        {
+          "message": "іфв",
+          "sendMessageTo": "123123123",
+          "sendBy": "123321",
+          "time": "14:10"
+        }
+      ]
+    }
+  ]
+}

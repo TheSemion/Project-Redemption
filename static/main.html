@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Redemption</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="div" id="modal">
+        <div id="modalHeader">
+            <button onclick="closeModal()" id="modalCloseBtn">&#x2715</button>
+            <p>Add contact</p>
+            <button onclick="addChat()" id="addContactButton" disabled>ADD</button>
+        </div>
+        <div id="nameFields">
+            <input id="contactFirstNameInput" placeholder="First name (required)">
+            <input id="contactLastNameInput" placeholder="Last name (optional)">
+            <input id="contactNumberInput" placeholder="Phone Number">
+        </div>
+    </div>
+
+    <div id="leftBlank"></div>
+    <div class="container" id="searchChatsContainer">
+        <div class="container" id="upMenuContainer">
+            <input id="searchBar" placeholder="Search">
+        </div>
+        <div class="container" id="contactsList">
+            <button id="addChatButton" onclick="addContact()">+</button>
+        </div>
+    </div>
+    <div class="container" id="chatContainer">
+        <div class="container" id="upperChatContainer">
+                
+        </div>
+        <div class="mainChatContainer">
+            <div id="messageContainer">
+
+            </div>
+            <div class="container" id="lowerChatContainer">
+                <div class="container" id="inputContainer">
+                    <textarea rows="1" id="messageInput" placeholder="Message"></textarea>
+                    <button id="fileInput"></button>
+                </div>
+                <button id="sendMessageBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+    <div id="rightBlank"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
