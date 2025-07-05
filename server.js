@@ -2,6 +2,7 @@ import { WebSocketServer } from "ws"
 import http from "http"
 import express from "express"
 import path from "path"
+import { fileURLToPath } from "url"
 
 import { readDatabase, addUser, writeDatabase } from "./dbfunctions.js"
 import { read } from "fs"
@@ -9,7 +10,8 @@ import { read } from "fs"
 let clients = []
 
 const PORT = 3000
-const __dirname = path.resolve()
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 let app = express()
 app.use(express.static(path.resolve(__dirname, "static")))
