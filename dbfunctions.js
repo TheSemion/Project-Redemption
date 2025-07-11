@@ -1,14 +1,6 @@
 import mongoose from "mongoose"
 
-await mongoose.connect("mongodb+srv://ostapsemionyk1403:9FEquctGAl9Kahqv@projectredemption.ytzticc.mongodb.net/", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log("✅ MongoDB connected");
-}).catch((err) => {
-  console.error("❌ MongoDB error:", err);
-});
-
+await mongoose.connect("mongodb+srv://ostapsemionyk1403:9FEquctGAl9Kahqv@projectredemption.ytzticc.mongodb.net/")
 // === 🧱 Схеми ===
 
 const userSchema = new mongoose.Schema({
