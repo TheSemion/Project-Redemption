@@ -320,6 +320,6 @@ function sortChatsByLastMessage(chats) {
     })
 }
 
-server.listen(3000, () => {
+server.listen(PORT, () => {
     console.log("Сервер запущено")
 })
