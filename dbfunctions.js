@@ -1,6 +1,6 @@
 import mongoose from "mongoose"
 
-await mongoose.connect("mongodb+srv://redemption:1234@projectredemption.ytzticc.mongodb.net/ProjectRedemption");
+await mongoose.connect("mongodb+srv://redemption:1234@projectredemption.ytzticc.mongodb.net/");
 // === 🧱 Схеми ===
 
 const userSchema = new mongoose.Schema({
