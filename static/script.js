@@ -1,4 +1,5 @@
 const socket = new WebSocket("https://project-redemption-production.up.railway.app/")
+//let socket = new WebSocket("ws://localhost:3000")
 
 window.addEventListener("DOMContentLoaded", () => {
     const clientNumber = localStorage.getItem("currentClient")
@@ -16,12 +17,29 @@ window.addEventListener("DOMContentLoaded", () => {
             const contactsList = document.getElementById("contactsList")
 
             contacts.forEach(contact => {
+                let lastMessage = contact.lastMessage
+                let lastMessageTime = contact.lastMessageTime
+
+                let hourMinute
+
+                if (lastMessage && lastMessageTime) {
+                    let [day, month, year, time] = lastMessageTime.split('.')
+                    let [hour, minute, second] = time.split(':')
+
+                    hourMinute = `${hour}:${minute}`
+                } else {
+                    hourMinute = ``
+                    lastMessage = ``
+                }
                 contactsList.innerHTML += `
-                <button class="chatButton" onclick="changeChat(this)">
+                <button class="chatButton" onclick="changeChat(this)" data-phone="${contact.phoneNumber}">
                     <img src="/avatars/commonAvatar.png">
                     <div class="chat-container">
                         <span class="chat-title">${contact.username}</span>
-                        <p class="lastMessage"></p>
+                        <div class="lowerChat">
+                            <span class="lastMessage">${lastMessage}</span>
+                            <span class="lastMessageTime">${hourMinute}</span>
+                        </div>
                     </div>
                 </button>
                 `
@@ -105,11 +123,11 @@ usernameInput.addEventListener('input', checkInputs);
 phoneInput.addEventListener('input', checkInputs);
 
 function addContact() {
-    document.getElementById("modal").style.display = "flex"
+    document.getElementById("modal").classList.add("visible")
 }
 
 function closeModal() {
-    document.getElementById("modal").style.display = "none"
+    document.getElementById("modal").classList.remove("visible")
 }
 
 function addChat() {
@@ -132,7 +150,7 @@ function addChat() {
             const contactsList = document.getElementById("contactsList");
 
             contactsList.innerHTML += `
-            <button class="chatButton" onclick="changeChat(this)">
+            <button class="chatButton" onclick="changeChat(this)" data-phone="${data.phoneNumber}">
                 <img src="/avatars/commonAvatar.png">
                 <div class="chat-container">
                 <span class="chat-title">${name} ${lastName}</span>
@@ -140,7 +158,8 @@ function addChat() {
                 </div>
             </button>
             `;
-            document.getElementById("modal").style.display = "none"
+            document.getElementById("modal").classList.remove("visible")
+            document.getElementsByClassName("modalInput").value = ""
 
         }
     })
@@ -167,16 +186,22 @@ messageInput.addEventListener('input', () => {
 
 function changeChat(btn) {
     let clientNumber = localStorage.getItem("currentClient")
-    let contactName = btn.querySelector(".chat-title").textContent
+    let contactPhoneNumber = btn.dataset.phone
     
     fetch("/changeChat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contactName, clientNumber })
+        body: JSON.stringify({ contactPhoneNumber, clientNumber })
     })
-    
-    localStorage.setItem("currentChatWith", contactName)
-    console.log(contactName)
+    .then (response => response.json())
+    .then (data => {
+        const contactName = data.contactName
+
+        let title = document.getElementById("upperChatTitle")
+        
+        title.textContent = contactName
+    })
+    localStorage.setItem("currentChatWith", contactPhoneNumber)
 }
 
 socket.onmessage = (event) => {
@@ -188,6 +213,7 @@ socket.onmessage = (event) => {
             const sendTo = data.sendTo
             const message = data.message
             const time = data.time
+            const chats = data.chats
 
             let chat = document.getElementById("messageContainer")
 
@@ -200,7 +226,6 @@ socket.onmessage = (event) => {
                     <span class="timeSpan">${time}</span>
                 </div>
                 `
-
                 chat.innerHTML += messageExample
             } else if (currentClient === sendTo) {
                 let messageExample = `
@@ -209,9 +234,44 @@ socket.onmessage = (event) => {
                     <span class="timeSpan">${time}</span>
                 </div>
                 `
-
                 chat.innerHTML += messageExample
             }
+
+            scrollToBottomIfNeeded(chat)
+
+            let chatsList = document.getElementById("contactsList")
+
+            chatsList.innerHTML = `<button id="addChatButton" onclick="addContact()">+</button>`
+
+            chats.forEach(chat => {
+                let lastMessageTime = chat.lastMessageTime
+                let lastMessage = chat.lastMessage
+                let contact = chat.username
+                let hourMinute
+
+                if (lastMessage && lastMessageTime) {
+                    let [day, month, year, time] = lastMessageTime.split('.')
+                    let [hour, minute, second] = time.split(':')
+                    hourMinute = `${hour}:${minute}`
+                } else {
+                    hourMinute = ``
+                    lastMessage = ``
+                }
+
+                chatsList.innerHTML += `
+                    <button class="chatButton" onclick="changeChat(this)" data-phone="${chat.phoneNumber}">
+                        <img src="/avatars/commonAvatar.png">
+                        <div class="chat-container">
+                        <span class="chat-title">${contact}</span>
+                        <div class="lowerChat">
+                            <span class="lastMessage">${lastMessage}</span>
+                            <span class="lastMessageTime">${hourMinute}</span>
+                        </div>
+                        </div>
+                    </button>
+                `
+            })
+            chat.insertAdjacentHTML('afterbegin', messageExample);
             break;
         }
         case "addContact": {
@@ -224,7 +284,7 @@ socket.onmessage = (event) => {
                 const contactsList = document.getElementById("contactsList");
 
                 contactsList.innerHTML += `
-                <button class="chatButton" onclick="changeChat(this)">
+                <button class="chatButton" onclick="changeChat(this)" data-phone="${sendByNumber}">
                     <img src="/avatars/commonAvatar.png">
                     <div class="chat-container">
                     <span class="chat-title">${sendBy}</span>
@@ -237,15 +297,13 @@ socket.onmessage = (event) => {
         }
         case "loadChat": {
             let messages = data.messages
-            
-            
+
             if (data.clientNumber === localStorage.getItem("currentClient")) {
                 let chat = document.getElementById("messageContainer")
                 chat.innerHTML = ""
                 messages.forEach(msg => {
                     let sendBy = msg.sendBy
                     let sendTo = msg.sendMessageTo
-
 
                     if (sendBy === localStorage.getItem("currentClient")) {
                         let messageExample = `
@@ -254,7 +312,6 @@ socket.onmessage = (event) => {
                             <span class="timeSpan">${msg.time}</span>
                         </div>
                         `
-
                         chat.innerHTML += messageExample
                     } else {
                         let messageExample = `
@@ -263,16 +320,16 @@ socket.onmessage = (event) => {
                             <span class="timeSpan">${msg.time}</span>
                         </div>
                         `
-
                         chat.innerHTML += messageExample
                     }
-                  
                 })
+                scrollToBottomIfNeeded(chat)
             }
+            break;
         }
-        break;
     }
 }
+
 
 function sendMessage() {
     const messageInput = document.getElementById("messageInput")
@@ -281,6 +338,17 @@ function sendMessage() {
 
     const currentClient = localStorage.getItem("currentClient")
 
+    messageInput.style.height = '37px';
+    inputContainer.style.height = '54px';
+    
+
     socket.send(JSON.stringify({ message: messageInput.value, messageTo: sendMessageTo, currentClient, type: "sendMessage" }))
     messageInput.value = ""
+}
+
+function scrollToBottomIfNeeded(container) {
+    const needsScroll = container.scrollHeight > container.clientHeight;
+    if (needsScroll) {
+        container.scrollTop = container.scrollHeight;
+    }
 }

@@ -15,9 +15,9 @@
             <button onclick="addChat()" id="addContactButton" disabled>ADD</button>
         </div>
         <div id="nameFields">
-            <input id="contactFirstNameInput" placeholder="First name (required)">
-            <input id="contactLastNameInput" placeholder="Last name (optional)">
-            <input id="contactNumberInput" placeholder="Phone Number">
+            <input class="modalInput" id="contactFirstNameInput" placeholder="First name (required)">
+            <input class="modalInput" id="contactLastNameInput" placeholder="Last name (optional)">
+            <input class="modalInput" id="contactNumberInput" placeholder="Phone Number">
         </div>
     </div>
 
@@ -32,7 +32,8 @@
     </div>
     <div class="container" id="chatContainer">
         <div class="container" id="upperChatContainer">
-                
+            <img class="upperChatPFP" src="/avatars/commonAvatar.png">
+            <span id="upperChatTitle">Мама</span>
         </div>
         <div class="mainChatContainer">
             <div id="messageContainer">

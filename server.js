@@ -22,7 +22,7 @@ const wss = new WebSocketServer({server})
 wss.on("connection", (ws) => {
     console.log("Приєднано користувача")
     clients.push(ws)
-    ws.on("message", (data) => {
+    ws.on("message", async (data) => {
         const dataParsed = JSON.parse(data)
 
         switch (dataParsed.type) {
@@ -31,15 +31,19 @@ wss.on("connection", (ws) => {
                 let sendMessageTo = dataParsed.messageTo
                 let currentClient = dataParsed.currentClient
 
+                if (message.trim() === "") {
+                    return
+                }
+
                 console.log(dataParsed)
 
-                let db = readDatabase()
+                let db = await readDatabase()
 
                 let user = db.users.find(user => user.phoneNumber === currentClient)
                 console.log(user)
 
                 if (user) {
-                    let contact = user.contacts.find(contact => contact.username === sendMessageTo)
+                    let contact = user.contacts.find(contact => contact.phoneNumber === sendMessageTo)
                     console.log(contact)
 
                     if (contact) {
@@ -51,7 +55,23 @@ wss.on("connection", (ws) => {
 
                         console.log(chat)
 
-                        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+                        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+
+                        const now = new Date()
+
+                        const day = String(now.getDate()).padStart(2, '0')        // день з ведучим нулем
+                        const month = String(now.getMonth() + 1).padStart(2, '0') // місяць (0-based) +1 і з нулем
+                        const year = now.getFullYear()
+
+                        const hours = String(now.getHours()).padStart(2, '0')     // години з нулем
+                        const minutes = String(now.getMinutes()).padStart(2, '0')
+                        const seconds = String(now.getSeconds()).padStart(2, '0')
+                         // хвилини з нулем
+
+                        const lastMessageTime = `${day}.${month}.${year}.${hours}:${minutes}:${seconds}`
+
+                        let contactUser = db.users.find(u => u.phoneNumber === contactNumber)
+
 
                         let newMessage = {
                             message,
@@ -63,12 +83,27 @@ wss.on("connection", (ws) => {
                         console.log(newMessage)
 
                         chat.messages.push(newMessage)
+                        chat.lastMessageTime = lastMessageTime
 
-                        writeDatabase(db)
+                        contact.lastMessage = message
+                        contact.lastMessageTime = lastMessageTime
+
+                        let contactFromHim = contactUser.contacts.find(contact => contact.phoneNumber === user.phoneNumber)
+                        
+                        contactFromHim.lastMessage = message
+                        contactFromHim.lastMessageTime = lastMessageTime
+
+                        await writeDatabase(db)
+
+                        let chats = sortChatsByLastMessage(user.contacts)
+
+                        console.log("currentClient:", currentClient)
+                        console.log("contact:", contact)
+                        console.log("contact.username:", contact?.username)
 
                         clients.forEach(client => {
                             if (client.readyState === WebSocket.OPEN) {
-                                client.send(JSON.stringify({ message, sendBy: currentClient, sendTo: contactNumber, time, type: "sendMessage" }))
+                                client.send(JSON.stringify({ message, sendBy: currentClient, sendTo: contactNumber, time, type: "sendMessage", chats, contact: sendMessageTo }))
                             }
                         })
                     }
@@ -78,12 +113,12 @@ wss.on("connection", (ws) => {
     })
 })
 
-app.post('/register', (req, res) => {
+app.post('/register', async (req, res) => {
     const name = req.body.name
     const number = req.body.number
     const password = req.body.password
 
-    let db = readDatabase()
+    let db = await readDatabase()
 
     let ifNumberIsUsed = db.users.some(user => user.phoneNumber === number)
 
@@ -99,18 +134,18 @@ app.post('/register', (req, res) => {
         chatsIn: []
     }
 
-    addUser(user)
+    await addUser(user)
 
     console.log("Додано користувача", user)
 
     res.send({ status: "ok", message: "Успішно додано користувача" })
 })
 
-app.post('/login', (req,res) => {
+app.post('/login', async (req,res) => {
     const number = req.body.number
     const password = req.body.password
 
-    let db = readDatabase()
+    let db = await readDatabase()
 
     let user = db.users.find(user => user.phoneNumber === number)
 
@@ -128,18 +163,18 @@ app.post('/login', (req,res) => {
 })
 
 
-app.post('/addContact', (req, res) => {
+app.post('/addContact', async (req, res) => {
     const name = req.body.name
     const lastName = req.body.lastName
     const phoneNumber = req.body.number
     const clientNumber = req.body.clientNumber
 
-    let db = readDatabase()
+    let db = await readDatabase()
 
     let user = db.users.find(user => user.phoneNumber === clientNumber)
 
     if (lastName === undefined) {
-        lastName === ""
+        lastName = ""
     }
 
     if (user) {
@@ -169,17 +204,22 @@ app.post('/addContact', (req, res) => {
                 messages: []
             }
 
+
             console.log(newChat)
 
             db.chats.push(newChat)
+            
             console.log(db.chats)
             console.log(user.contacts)
+
             user.contacts.push(newContactForMe)
             contact.contacts.push(newContactForHim)
-            writeDatabase(db)
+
+            await writeDatabase(db)
+            
             clients.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify({ sendBy: user.name, sendTo: contact.phoneNumber, type: "addContact"  }))
+                    client.send(JSON.stringify({ sendBy: user.name, sendByNumber: user.phoneNumber, sendTo: contact.phoneNumber, type: "addContact", phoneNumber  }))
                 }
             })
             res.send({ status: "ok", message: "Додано контакт" })
@@ -189,44 +229,97 @@ app.post('/addContact', (req, res) => {
     }
 })
 
-app.post("/changeChat", (req, res) => {
+app.post("/changeChat", async (req, res) => {
     let clientNumber = req.body.clientNumber
-    let contactName = req.body.contactName
+    let contactNumber = req.body.contactPhoneNumber
 
-    let db = readDatabase()
+    let db = await readDatabase()
 
     let user1 = db.users.find(user => user.phoneNumber === clientNumber)
+    if (!user1) {
+        return res.status(404).send({ status: "error", message: "Користувача не знайдено" })
+    }
 
-    let clientName = user1.name
-    
-    let user2 = user1.contacts.find(contact => contact.username === contactName)
-    let contactNumber = user2.phoneNumber
+    let user2 = user1.contacts.find(contact => contact.phoneNumber === contactNumber)
+
+    let contactName = user2.username
+    if (!user2) {
+        console.log(`Контакт '${contactNumber}' не знайдено у користувача ${clientNumber}`)
+        return res.status(404).send({ status: "error", message: "Контакт не знайдено" })
+    }
+
+
+    console.log("user2, contactNumber", user2, contactNumber)
 
     let chatId = [String(clientNumber), String(contactNumber)].sort().join('-')
 
     let chat = db.chats.find(chat => chat.chatId === chatId)
+    if (!chat) {
+        return res.status(404).send({ status: "error", message: "Чат не знайдено" })
+    }
 
     let messages = chat.messages
 
-    if (messages !== "") {
-        clients.forEach(client => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify({ messages, clientNumber, contactName, type: "loadChat" }))
-            }
-        })
-    }
+    clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({ messages, clientNumber, contactName, type: "loadChat" }))
+        }
+    })
+
+    res.send({ status: "ok", message: "Чат надіслано", contactName }) // важливо відповісти клієнту
 })
 
-app.post("/getContacts", (req,res) => {
+
+app.post("/getContacts", async (req,res) => {
     let clientNumber = req.body.clientNumber
 
-    let db = readDatabase()
+    let db = await readDatabase()
 
     let user = db.users.find(u => u.phoneNumber === clientNumber)
 
-    res.send({ status: "ok", contacts: user.contacts })
+    if (!user) {
+        return res.send({ status: "error", message: "Користувача не знайдено" })
+    }
+
+    let contacts = await sortChatsByLastMessage(user.contacts)
+
+    if (user.contacts) {
+        res.send({ status: "ok", contacts })
+    } else {
+        return
+    }
+
 })
 
-server.listen(PORT, () => {
+function getDate(str) {
+    if (!str || typeof str !== "string" || !str.includes('.') || !str.includes(':')) {
+        return null
+    }
+
+    try {
+        const [day, month, year, time] = str.split('.')
+        const [hours, minutes, seconds] = time.split(':')
+        return new Date(+year, +month - 1, +day, +hours, +minutes, +seconds)
+    } catch (err) {
+        console.log("Помилка в getDate:", err)
+        return null
+    }
+}
+
+function sortChatsByLastMessage(chats) {
+    return chats.sort((a,b) => {
+        if (!a.lastMessageTime) return 1
+        if (!b.lastMessageTime) return -1
+
+        const dateA = getDate(a.lastMessageTime)
+        console.log(dateA)
+        const dateB = getDate(b.lastMessageTime)
+        console.log(dateB)
+
+        return dateB - dateA
+    })
+}
+
+server.listen(3000, () => {
     console.log("Сервер запущено")
 })
