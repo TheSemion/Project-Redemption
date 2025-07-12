@@ -284,7 +284,7 @@ socket.onmessage = (event) => {
                 const contactsList = document.getElementById("contactsList");
 
                 contactsList.innerHTML += `
-                <button class="chatButton" onclick="changeChat(this)" data-phone="${sendByNumber}">
+                <button class="chatButton" onclick="changeChat(this)" data-phone="${data.sendByNumber}">
                     <img src="/avatars/commonAvatar.png">
                     <div class="chat-container">
                     <span class="chat-title">${sendBy}</span>
